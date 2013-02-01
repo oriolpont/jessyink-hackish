@@ -7,7 +7,7 @@
  */
 function view(dir, element, time, options)
 {
-	var length = 250;
+	var length = DEFAULT_DURATION;
 	var fraction;
 
 	if (!options["matrixInitial"])
@@ -82,7 +82,7 @@ function view(dir, element, time, options)
  */
 function fade(dir, element, time, options)
 {
-	var length = 250;
+	var length = DEFAULT_DURATION;
 	var fraction;
 
 	if ((time == STATE_END) || (time == STATE_START))
@@ -167,7 +167,7 @@ function appear(dir, element, time, options)
  */
 function pop(dir, element, time, options)
 {
-	var length = 500;
+	var length = DEFAULT_DURATION;
 	var fraction;
 
 	if ((time == STATE_END) || (time == STATE_START))

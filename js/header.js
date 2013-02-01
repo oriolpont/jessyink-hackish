@@ -61,6 +61,7 @@ var INDEX_OFFSET = 0;
 var STATE_START = -1;
 var STATE_END = -2;
 var BACKGROUND_COLOR = null;
+var DEFAULT_DURATION = 250; // Default duration of effects in ms
 var slides = new Array();
 
 // Initialisation.

@@ -144,6 +144,29 @@ function jessyInkInit()
 	// from the master slide and substitute the auto-texts.
 	for (var counter = 0; counter < tempSlides.length; counter++)
 	{
+		// First of all, set the view effect for the '{{...}}' specifier texts
+		// Our candidate elements are groups of elements
+		var candidates = document.getElementById(tempSlides[counter]).getElementsByTagNameNS(NSS["svg"], "g");
+		for(var i=0; i<candidates.length; i++) 
+		{
+			var obj = tryFindGroupDict(candidates[i]); // to parse the contents inside the {{}}
+			if (obj)
+			{
+				if (obj.name == 'view') // we only set the views at this point (effects come later)
+				{
+					// We will consider the views defined by rectangles. We take the first one only.
+					// the python JessyInk extension is a little bit more flexible here, but this is more robust
+					var viewframe = candidates[i].getElementsByTagNameNS(NSS["svg"], "rect")[0];
+					var viewoptions = "name:view;order:"; // we specify the name ("view" is the only effect for jessyink:view)
+					viewoptions += (obj.order) ? obj.order : 1; // we set the order to 1 if not specified
+					viewoptions += ";lenth:";
+					viewoptions += (obj.length) ? obj.length : DEFAULT_DURATION; // if length is given, put it too
+					viewframe.setAttributeNS(NSS["jessyink"],"view",viewoptions);
+					console.log('Element '+viewframe.getAttribute('id')+' set for view');
+				}
+			}
+		}
+
 		var originalNode = document.getElementById(tempSlides[counter]);
 		originalNode.style.display = "none";
 		var node = suffixNodeIds(originalNode.cloneNode(true), "_" + counter);
@@ -286,16 +309,16 @@ function jessyInkInit()
 		for(var i=0; i<candidates.length; i++) 
 		{
 			var obj = tryFindGroupDict(candidates[i]);
-			if (obj) 
+			if (obj && obj.name!='view') // we have processed the view effect before
 			{
-				console.log('found obj=' + obj);
-				var id= candidates[i].getAttribute('id');
+				console.log('setting effects for element ' + candidates[i].getAttribute('id'));
+				if (!obj.order) obj.order = 1; // define an order if not set
 				var effectDict= { 
-					dir:1,
-					element:candidates[i],
-					order:obj.order,
-					effect:obj.name || 'appear',
-					options:obj,
+					dir: (obj.dir == -1) ? -1 : 1, // default direction is forward ("in"); put -1 for "out"
+					element: candidates[i],
+					order: obj.order,
+					effect: obj.name || ((obj.dir == 1) ? defaultTransitionInDict["name"] : defaultTransitionOutDict["name"]),
+					options: obj,
 				};
 
 				if (!tempEffects[obj.order])
