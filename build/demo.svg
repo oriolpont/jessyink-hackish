@@ -232,7 +232,7 @@ function suffixNodeIds(node, suffix)
  */
 function view(dir, element, time, options)
 {
-	var length = 250;
+	var length = DEFAULT_DURATION;
 	var fraction;
 
 	if (!options[&quot;matrixInitial&quot;])
@@ -307,7 +307,7 @@ function view(dir, element, time, options)
  */
 function fade(dir, element, time, options)
 {
-	var length = 250;
+	var length = DEFAULT_DURATION;
 	var fraction;
 
 	if ((time == STATE_END) || (time == STATE_START))
@@ -392,7 +392,7 @@ function appear(dir, element, time, options)
  */
 function pop(dir, element, time, options)
 {
-	var length = 500;
+	var length = DEFAULT_DURATION;
 	var fraction;
 
 	if ((time == STATE_END) || (time == STATE_START))
@@ -877,6 +877,7 @@ var INDEX_OFFSET = 0;
 var STATE_START = -1;
 var STATE_END = -2;
 var BACKGROUND_COLOR = null;
+var DEFAULT_DURATION = 250; // Default duration of effects in ms
 var slides = new Array();
 
 // Initialisation.
@@ -1158,7 +1159,7 @@ function jessyInkInit()
 	var nodes = document.getElementsByTagNameNS(NSS[&quot;svg&quot;], &quot;g&quot;);
 	var tempSlides = new Array();
 	var masterSlides = new Array();
-    var masterSlidePositions = new Array();
+	var masterSlidePositions = new Array();
 	var existingJessyInkPresentationLayer = null;
 
 	for (var counter = 0; counter &lt; nodes.length; counter++)
@@ -1173,16 +1174,16 @@ function jessyInkInit()
 				nodes[counter].setAttribute('style','display:none');
 			else if (nodes[counter].getAttributeNS(NSS[&quot;inkscape&quot;], &quot;label&quot;).substring(0,1) == '_') {
 				masterSlides.push( nodes[counter] );
-                masterSlidePositions.push( tempSlides.length );
-            } else
+				masterSlidePositions.push( tempSlides.length );
+			} else
 				tempSlides.push(nodes[counter].getAttribute(&quot;id&quot;));
 		}
 		else if (nodes[counter].getAttributeNS(NSS['jessyink'], 'element'))
 			handleElement(nodes[counter]);
 	}
 
-    for (var i = 0; i &lt; masterSlides.length; i++)
-        masterSlides[i].style.display = &quot;none&quot;;
+	for (var i = 0; i &lt; masterSlides.length; i++)
+		masterSlides[i].style.display = &quot;none&quot;;
 
 	// Hide master slide set default transitions.
 	if (masterSlide)
@@ -1226,6 +1227,29 @@ function jessyInkInit()
 	// from the master slide and substitute the auto-texts.
 	for (var counter = 0; counter &lt; tempSlides.length; counter++)
 	{
+		// First of all, set the view effect for the '{{...}}' specifier texts
+		// Our candidate elements are groups of elements
+		var candidates = document.getElementById(tempSlides[counter]).getElementsByTagNameNS(NSS[&quot;svg&quot;], &quot;g&quot;);
+		for(var i=0; i&lt;candidates.length; i++) 
+		{
+			var obj = tryFindGroupDict(candidates[i]); // to parse the contents inside the {{}}
+			if (obj)
+			{
+				if (obj.name == 'view') // we only set the views at this point (effects come later)
+				{
+					// We will consider the views defined by rectangles. We take the first one only.
+					// the python JessyInk extension is a little bit more flexible here, but this is more robust
+					var viewframe = candidates[i].getElementsByTagNameNS(NSS[&quot;svg&quot;], &quot;rect&quot;)[0];
+					var viewoptions = &quot;name:view;order:&quot;; // we specify the name (&quot;view&quot; is the only effect for jessyink:view)
+					viewoptions += (obj.order) ? obj.order : 1; // we set the order to 1 if not specified
+					viewoptions += &quot;;lenth:&quot;;
+					viewoptions += (obj.length) ? obj.length : DEFAULT_DURATION; // if length is given, put it too
+					viewframe.setAttributeNS(NSS[&quot;jessyink&quot;],&quot;view&quot;,viewoptions);
+					console.log('Element '+viewframe.getAttribute('id')+' set for view');
+				}
+			}
+		}
+
 		var originalNode = document.getElementById(tempSlides[counter]);
 		originalNode.style.display = &quot;none&quot;;
 		var node = suffixNodeIds(originalNode.cloneNode(true), &quot;_&quot; + counter);
@@ -1280,17 +1304,17 @@ function jessyInkInit()
         // clone master slide layers
 		if (masterSlides.length)
 		{
-            for( var i = masterSlides.length-1; i &gt;= 0; i--)
-                if (masterSlidePositions[i] &lt;= counter) 
-                {
-                    var clonedNode = suffixNodeIds(masterSlides[i].cloneNode(true), &quot;_&quot; + counter);
-                    clonedNode.removeAttributeNS(NSS[&quot;inkscape&quot;], &quot;groupmode&quot;);
-                    clonedNode.removeAttributeNS(NSS[&quot;inkscape&quot;], &quot;label&quot;);
-                    clonedNode.style.display = &quot;inherit&quot;;
+			for( var i = masterSlides.length-1; i &gt;= 0; i--)
+				if (masterSlidePositions[i] &lt;= counter) 
+				{
+					var clonedNode = suffixNodeIds(masterSlides[i].cloneNode(true), &quot;_&quot; + counter);
+					clonedNode.removeAttributeNS(NSS[&quot;inkscape&quot;], &quot;groupmode&quot;);
+					clonedNode.removeAttributeNS(NSS[&quot;inkscape&quot;], &quot;label&quot;);
+					clonedNode.style.display = &quot;inherit&quot;;
 
-                    node.insertBefore(clonedNode, node.firstChild);
-                }
-        }
+					node.insertBefore(clonedNode, node.firstChild);
+				}
+		}
 
 		// Setting clip path.
 		node.setAttribute(&quot;clip-path&quot;, &quot;url(#jessyInkSlideClipPath)&quot;);
@@ -1368,16 +1392,16 @@ function jessyInkInit()
 		for(var i=0; i&lt;candidates.length; i++) 
 		{
 			var obj = tryFindGroupDict(candidates[i]);
-			if (obj) 
+			if (obj &amp;&amp; obj.name!='view') // we have processed the view effect before
 			{
-				console.log('found obj=' + obj);
-				var id= candidates[i].getAttribute('id');
+				console.log('setting effects for element ' + candidates[i].getAttribute('id'));
+				if (!obj.order) obj.order = 1; // define an order if not set
 				var effectDict= { 
-					dir:1,
-					element:candidates[i],
-					order:obj.order,
-					effect:obj.name || 'appear',
-					options:obj,
+					dir: (obj.dir == -1) ? -1 : 1, // default direction is forward (&quot;in&quot;); put -1 for &quot;out&quot;
+					element: candidates[i],
+					order: obj.order,
+					effect: obj.name || ((obj.dir == 1) ? defaultTransitionInDict[&quot;name&quot;] : defaultTransitionOutDict[&quot;name&quot;]),
+					options: obj,
 				};
 
 				if (!tempEffects[obj.order])
