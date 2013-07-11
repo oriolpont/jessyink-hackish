@@ -17,13 +17,15 @@ function setSlideToState(slide, state)
 				{
 					var effect = slides[slide]["effects"][counter][subCounter];
 					if (effect["effect"] == "fade")
-						fade(effect["dir"], effect["element"], STATE_END, effect["options"]);	
+						fade(effect["dir"], effect["element"], STATE_END, effect["options"]);
 					else if (effect["effect"] == "appear")
-						appear(effect["dir"], effect["element"], STATE_END, effect["options"]);	
+						appear(effect["dir"], effect["element"], STATE_END, effect["options"]);
 					else if (effect["effect"] == "pop")
-						pop(effect["dir"], effect["element"], STATE_END, effect["options"]);	
+						pop(effect["dir"], effect["element"], STATE_END, effect["options"]);
 					else if (effect["effect"] == "view")
-						view(effect["dir"], effect["element"], STATE_END, effect["options"]);	
+						view(effect["dir"], effect["element"], STATE_END, effect["options"]);
+					else if (effect["effect"] == "videoStart")
+						videoStart(effect["dir"], effect["element"], STATE_END, effect["options"]);
 				}
 			}
 		}
@@ -35,13 +37,15 @@ function setSlideToState(slide, state)
 				{
 					var effect = slides[slide]["effects"][counter][subCounter];
 					if (effect["effect"] == "fade")
-						fade(parseInt(effect["dir"]) * -1, effect["element"], STATE_START, effect["options"]);	
+						fade(parseInt(effect["dir"]) * -1, effect["element"], STATE_START, effect["options"]);
 					else if (effect["effect"] == "appear")
-						appear(parseInt(effect["dir"]) * -1, effect["element"], STATE_START, effect["options"]);	
+						appear(parseInt(effect["dir"]) * -1, effect["element"], STATE_START, effect["options"]);
 					else if (effect["effect"] == "pop")
-						pop(parseInt(effect["dir"]) * -1, effect["element"], STATE_START, effect["options"]);	
+						pop(parseInt(effect["dir"]) * -1, effect["element"], STATE_START, effect["options"]);
 					else if (effect["effect"] == "view")
-						view(parseInt(effect["dir"]) * -1, effect["element"], STATE_START, effect["options"]);	
+						view(parseInt(effect["dir"]) * -1, effect["element"], STATE_START, effect["options"]);
+					else if (effect["effect"] == "videoStart")
+						videoStart(parseInt(effect["dir"]) * -1, effect["element"], STATE_START, effect["options"]);
 				}
 			}
 		}
@@ -55,13 +59,15 @@ function setSlideToState(slide, state)
 				{
 					var effect = slides[slide]["effects"][counter][subCounter];
 					if (effect["effect"] == "fade")
-						fade(effect["dir"], effect["element"], STATE_END, effect["options"]);	
+						fade(effect["dir"], effect["element"], STATE_END, effect["options"]);
 					else if (effect["effect"] == "appear")
-						appear(effect["dir"], effect["element"], STATE_END, effect["options"]);	
+						appear(effect["dir"], effect["element"], STATE_END, effect["options"]);
 					else if (effect["effect"] == "pop")
-						pop(effect["dir"], effect["element"], STATE_END, effect["options"]);	
+						pop(effect["dir"], effect["element"], STATE_END, effect["options"]);
 					else if (effect["effect"] == "view")
-						view(effect["dir"], effect["element"], STATE_END, effect["options"]);	
+						view(effect["dir"], effect["element"], STATE_END, effect["options"]);
+					else if (effect["effect"] == "videoStart")
+						videoStart(effect["dir"], effect["element"], STATE_END, effect["options"]);
 				}
 			}
 		}

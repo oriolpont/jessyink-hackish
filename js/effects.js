@@ -232,6 +232,27 @@ function pop(dir, element, time, options)
 	return false;
 }
 
+/** The videoStart effect, from the original JessyInk (by H. Hochreiner, 2011)
+ *
+ *  @param dir direction the effect should be played (1 = forwards, -1 = backwards)
+ *  @param element the element the effect should be applied to
+ *  @param time the time that has elapsed since the beginning of the effect
+ *  @param options a dictionary with additional options (e.g. length of the effect)
+ */
+
+function videoStart(dir, element, time, options)
+{
+	if (dir == 1)
+	{
+		element.firstChild.firstChild.firstChild.play();
+	}
+	else if (dir == -1)
+	{
+		element.firstChild.firstChild.firstChild.pause();
+	}
+	return true;
+}
+
 
 
 /** Function to run an effect.
@@ -254,6 +275,8 @@ function effect(dir)
 			done &= pop(parseInt(effectArray[counter]["dir"]) * dir, effectArray[counter]["element"], transCounter, effectArray[counter]["options"]);
 		else if (effectArray[counter]["effect"] == "view")
 			done &= view(parseInt(effectArray[counter]["dir"]) * dir, effectArray[counter]["element"], transCounter, effectArray[counter]["options"]);
+		else if (effectArray[counter]["effect"] == "videoStart")
+			done &= videoStart(parseInt(effectArray[counter]["dir"]) * dir, effectArray[counter]["element"], transCounter, effectArray[counter]["options"]);
 	}
 
 	ROOT_NODE.unsuspendRedraw(suspendHandle);

@@ -28,6 +28,7 @@ function handleElement(node)
 	if (node.getAttributeNS(NSS['jessyink'], 'element') == 'core.video')
 	{
 		var url;
+		var order = 0;
 		var width;
 		var height;
 		var x;
@@ -41,6 +42,11 @@ function handleElement(node)
 			if (tspans[tspanCounter].getAttributeNS("https://launchpad.net/jessyink", "video") == "url")
 			{
 				url = tspans[tspanCounter].firstChild.nodeValue;
+			}
+
+			if (tspans[tspanCounter].getAttributeNS("https://launchpad.net/jessyink", "video") == "order")
+			{
+				order = tspans[tspanCounter].firstChild.nodeValue;
 			}
 		}
 
@@ -73,6 +79,11 @@ function handleElement(node)
 			}
 		}
 
+		var gNode = document.createElementNS(NSS["svg"], "g");
+		gNode.setAttributeNS(NSS["jessyink"], "effectIn", "name:videoStart;order:" + order);
+		gNode.setAttributeNS(NSS["jessyink"], "effectOut", "name:videoStart;order:" + (order + 1));
+		gNode.setAttribute("id", node.getAttribute("id") + "videoGroup");
+
 		var foreignNode = document.createElementNS("http://www.w3.org/2000/svg", "foreignObject");
 		foreignNode.setAttribute("x", x);
 		foreignNode.setAttribute("y", y);
@@ -83,8 +94,9 @@ function handleElement(node)
 		var videoNode = document.createElementNS("http://www.w3.org/1999/xhtml", "video");
 		videoNode.setAttribute("src", url);
 
+		gNode.appendChild(foreignNode);
 		foreignNode.appendChild(videoNode);
-		node.appendChild(foreignNode);
+		node.appendChild(gNode);
 	}
 }
 
